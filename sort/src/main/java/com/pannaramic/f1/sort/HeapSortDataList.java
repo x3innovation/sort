@@ -68,27 +68,37 @@ public class HeapSortDataList
     	{
         	DataList list = null;
     		long time = System.currentTimeMillis();
-        	if ( args[2].equals( "BUFFER" ) )
+    		String sourceFile = args[0]; // only applicable to INMEM
+    		String destinationFile = args[1]; // BUFFER and UNSAFE should contain raw data already
+    		// Access Strategy indicates how to 
+    		// access the underlying data
+    		// BUFFER - use memory mapped file with MappedByteBuffer to access the data and final sorted list will be in the same file
+    		// UNSAFE - use memory mapped file but instead of using MappedByteBuffer use Usafe to access the data and final sorted list will be in the same file
+    		// INMEM - use Java array to load the data from the source file and sort and save to the new file
+    		// Please note for BUFFER and UNSAFE, new file should be used for each run to avoid OS caching affecting the performance data
+    		String accessStrategy = args[2]; 
+    		
+    		if ( accessStrategy.equals( "BUFFER" ) )
         	{
         		list = new MemoryMappedDataList( 
-    					args[1],
+        				destinationFile,
     					100,
     					0,
     					10 );
         	}
-        	else if ( args[2].equals( "UNSAFE" ) )
+        	else if ( accessStrategy.equals( "UNSAFE" ) )
         	{
         		list = new UnsafeMemoryMappedDataList( 
-    					args[1],
+        				destinationFile,
     					100,
     					0,
     					10 );   		
         	}
-        	else if ( args[2].equals( "INMEM" ) )
+        	else if ( accessStrategy.equals( "INMEM" ) )
         	{
         		list = new InMemoryDataList( 
-    					args[0],
-    					args[1],
+        				sourceFile,
+    					destinationFile,
     					100,
     					0,
     					10 );    		
